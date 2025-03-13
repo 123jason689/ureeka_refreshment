@@ -1,3 +1,6 @@
+# MBG Menu
+A refreshment project for Ureeka organization. The project is about making a web app in which the receiver or kids from the Indonesian government policy for distributing free lunch for schools. This app aims to provide information about the meal they were giving for the next day
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
