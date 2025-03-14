@@ -7,21 +7,39 @@ import NextMenu from "./pages/menu/page"
 import Home from "./pages/main/page"
 import ProtectRoute from "./lib/protectRoute";
 import Navbar from './components/ui/navbar';
+import ProviderDashboard from './pages/provider/page';
+import { AuthProvider } from "./context/AuthContext.tsx"
+
+
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  // const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = { isAuthenticated: true};
 
   return (
     <BrowserRouter>
       <Navbar/>
       <div className="pt-20">
-        <Routes>
-          <Route path='/' element={<Home/>}/>
-          <Route path='/login' element={<Login/>}/>
-          <Route path='/register' element={<Register/>}/>
-          <Route path='/home' element={<Login/>}/>
-          <Route path='/menu' element={<NextMenu/>}/>
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path='/' element={<Home/>}/>
+            <Route path='/login' element={<Login/>}/>
+            <Route path='/register' element={<Register/>}/>
+            <Route path='/home' element={<Login/>}/>
+            <Route path='/menu' element={<NextMenu/>}/>
+
+            <Route path='/dashboard' element={
+              <ProtectRoute isAuthenticated={isAuthenticated}>
+                <ProviderDashboard page='profile'/>
+              </ProtectRoute>
+            }/>
+            <Route path='/dashboard/new-menu' element={
+              <ProtectRoute isAuthenticated={isAuthenticated}>
+                <ProviderDashboard page='newmenu'/>
+              </ProtectRoute>
+            }/>
+          </Routes>
+        </AuthProvider>
       </div>
     </BrowserRouter>
   )

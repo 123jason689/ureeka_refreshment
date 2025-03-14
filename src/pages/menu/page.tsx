@@ -1,8 +1,7 @@
 import { useState } from "react"
 import { CalendarIcon } from "lucide-react"
 
-import { Button } from "../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -11,7 +10,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select"
+} from "@/components/ui/select"
 import { useNavigate } from "react-router-dom"
 
 // Sample data - in a real app, this would come from an API
@@ -58,7 +57,6 @@ const mealData = {
 }
 
 export default function NextMenu() {
-  const navigate = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState("")
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
