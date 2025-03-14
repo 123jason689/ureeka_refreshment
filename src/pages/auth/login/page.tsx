@@ -1,15 +1,29 @@
-import { useState } from "react";
+import { auth } from "@/lib/firebase/init";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const navigate = useNavigate();
 
-    const [remember,setRemember] = useState(false);
-    const [form, setForm] = useState({ 
-        username: "", 
-        password: ""});
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth,(user) => {
+            if(user){
+                navigate("/")
+            }
+        })
+        return () => unsubscribe()
+    },[navigate])
 
-    const {username,password} = form;
+    const [remember,setRemember] = useState(false);
+    const [error,setError] = useState("")
+    const [form, setForm] = useState({ 
+        email: "", 
+        password: "",
+        remember: false
+    })
+
+    const {email,password} = form;
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setForm((prev) => ({
@@ -20,27 +34,29 @@ export default function Login() {
     const goToRegister = () => {
         navigate("/register");
     }
-    const handleSubmit = async(e:React.ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+
         try {
-          const response = await fetch(`http://localhost:5000/login`,{
-            method: "POST",
-            headers :{
-              "Content-type" : "application/json" 
-            } ,
-            credentials: "include",
-            body : JSON.stringify({username,password})
-          })
-          if(!response){
-            throw new Error("response failed")
-          }
-        } catch (error) {
-          console.log(error)
+            const users = await signInWithEmailAndPassword  (auth, email, password);
+            alert("User login successfully!");
+            if(remember == true){
+                sessionStorage.setItem("user",JSON.stringify({id : users.user.uid,name : users.user.displayName}))
+            }
+            
+            setForm({
+                email: "",
+                password: "",
+                remember: false
+            })
+            navigate('/')
+        } catch (err: any) {
+            setError("Email or password is wrong");
         }
     }
 
     return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <div className="w-80 rounded-lg shadow h-auto p-6 relative overflow-hidden border">
             <div className="flex flex-col justify-center items-center space-y-2">
                 <h2 className="text-2xl font-medium text-slate-700">Login</h2>
@@ -48,14 +64,14 @@ export default function Login() {
             </div>
             <form className="w-full mt-4 space-y-3" onSubmit={handleSubmit}>
                 <div>
-                    <label htmlFor="username" className="block text-slate-600">Username</label>
+                    <label htmlFor="username" className="block text-slate-600">Email</label>
                     <input
                         className="outline-none border-2 rounded-md px-2 py-1 text-slate-500 w-full focus:border-blue-300"
-                        placeholder="Enter username"
-                        id="username"
-                        name="username"
+                        placeholder="Enter email"
+                        id="email"
+                        name="email"
                         type="text"
-                        value={form.username}
+                        value={form.email}
                         onChange={handleChange}
                         required
                     />
@@ -87,6 +103,7 @@ export default function Login() {
                     </label>
                     <a className="text-blue-500 font-medium hover:underline" href="#">Forgot Password</a>
                 </div>
+                {error}
                 <button
                     className="w-full justify-center py-1 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md text-white ring-2"
                     id="login"
@@ -99,6 +116,7 @@ export default function Login() {
                     <span className="text-slate-700">Don't have an account?</span>
                     <a className="text-blue-500 hover:underline" onClick={goToRegister}>Sign Up</a>
                 </p>
+
             </form>
         </div>
         </div>
