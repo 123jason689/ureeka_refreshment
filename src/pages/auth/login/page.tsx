@@ -24,6 +24,7 @@ export default function Login() {
     })
 
     const {email,password} = form;
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setForm((prev) => ({
@@ -34,6 +35,7 @@ export default function Login() {
     const goToRegister = () => {
         navigate("/register");
     }
+
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
@@ -116,7 +118,6 @@ export default function Login() {
                     <span className="text-slate-700">Don't have an account?</span>
                     <a className="text-blue-500 hover:underline" onClick={goToRegister}>Sign Up</a>
                 </p>
-
             </form>
         </div>
         </div>

@@ -18,10 +18,21 @@ export type RegionsType = {
   menu: DocumentReference|null
 }
 
+export type MenusType = {
+  id: string,
+  name: string,
+}
+
 export async function getAllRegion(setRegions: React.Dispatch<React.SetStateAction<RegionsType[]>>) {
   const colref = collection(firestore, "region");
   const snapshot = await getDocs(colref);
   setRegions(snapshot.docs.map(doc => { return {region: doc.data().region, id: doc.id, menu: doc.data().menu} as RegionsType}))
+}
+
+export async function getAllMenu(setMenus: React.Dispatch<React.SetStateAction<MenusType[]>>) {
+  const colref = collection(firestore, "menu");
+  const snapshot = await getDocs(colref);
+  setMenus(snapshot.docs.map(doc => { return {name: doc.data().name, id: doc.id} as MenusType}))  
 }
 
 export const fetchRegion = async (region:DocumentReference, setRegion:React.Dispatch<React.SetStateAction<RegionsType|undefined>>) => {

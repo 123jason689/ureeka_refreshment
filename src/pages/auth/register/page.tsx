@@ -1,3 +1,4 @@
+
 import { auth, firestore } from "@/lib/firebase/init";
 import { getAllRegion, RegionsType } from "@/lib/utils";
 import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
@@ -28,14 +29,14 @@ export default function Register() {
     const [regions, setRegions] = useState<RegionsType[]>([])
     const [error, setError] = useState("")
 
-    // useEffect(() => {
-    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
-    //         if (user) {
-    //             navigate("/")
-    //         }
-    //     })
-    //     return () => unsubscribe()
-    // }, [navigate])
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                navigate("/")
+            }
+        })
+        return () => unsubscribe()
+    }, [navigate])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
