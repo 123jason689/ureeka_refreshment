@@ -11,10 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useNavigate } from "react-router-dom"
 import { getTomorowDate, getAllRegion, RegionsType } from "@/lib/utils"
-import { doc, DocumentReference, getDoc } from "firebase/firestore"
-import { firestore } from "@/lib/firebase/init"
+import { getDoc } from "firebase/firestore"
 
 export default function NextMenu() {
   const formattedDate = getTomorowDate();
