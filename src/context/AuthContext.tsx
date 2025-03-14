@@ -6,6 +6,7 @@ import { TendantAttributes } from "../lib/util";
 
 interface AuthType{
     user: User | null,
+    isAuthenticated: boolean,
     loading: boolean
 }
 
@@ -13,7 +14,7 @@ interface AdminContextType{
     isAdmin: boolean|null,
 }
 
-const AuthContext = createContext<AuthType>({ user: null, loading:true })
+const AuthContext = createContext<AuthType>({ user: null, isAuthenticated:false, loading:true })
 
 const AdminContext = createContext<AdminContextType>({ isAdmin: false });
 
@@ -21,6 +22,7 @@ export const AuthProvider = ({children}: {children: ReactNode})=>{
     const [user, setUser] = useState<User|null>(null);
     const [isAdmin, setIsAdmin] = useState<boolean|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
     useEffect(()=>{
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -32,6 +34,7 @@ export const AuthProvider = ({children}: {children: ReactNode})=>{
                 if (docSnap.exists()) {
                   const docdata = {id:docSnap.id, ...docSnap.data()} as TendantAttributes;
                   setIsAdmin(docdata.isAdmin || false);
+                  setIsAuthenticated(true);
                 } else {
                   setIsAdmin(false);
                 }
@@ -48,7 +51,7 @@ export const AuthProvider = ({children}: {children: ReactNode})=>{
     }, []);
 
     return (
-        <AuthContext.Provider value={{user, loading}}>
+        <AuthContext.Provider value={{user, isAuthenticated, loading}}>
             <AdminContext.Provider value={{ isAdmin }}>
                 { children }
             </AdminContext.Provider>
