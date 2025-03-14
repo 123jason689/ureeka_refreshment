@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CalendarIcon } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,60 +12,50 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useNavigate } from "react-router-dom"
-
-// Sample data - in a real app, this would come from an API
-const regions = [
-  { id: "jakarta", name: "Jakarta" },
-  { id: "bandung", name: "Bandung" },
-  { id: "surabaya", name: "Surabaya" },
-  { id: "yogyakarta", name: "Yogyakarta" },
-  { id: "medan", name: "Medan" },
-  { id: "makassar", name: "Makassar" },
-]
-
-const mealData = {
-  jakarta: {
-    lunch: "Nasi Uduk dengan Ayam dan Tempe",
-    snack: "Pisang dan Susu",
-    nutritionalInfo: "Protein: 20g, Karbohidrat: 45g, Lemak: 15g, Vitamin A, C, D",
-  },
-  bandung: {
-    lunch: "Nasi Merah dengan Ikan dan Sayuran",
-    snack: "Apel dan Yogurt",
-    nutritionalInfo: "Protein: 18g, Karbohidrat: 40g, Lemak: 12g, Vitamin B, C, D",
-  },
-  surabaya: {
-    lunch: "Nasi dengan Ayam Bakar dan Capcay",
-    snack: "Jeruk dan Susu Kedelai",
-    nutritionalInfo: "Protein: 22g, Karbohidrat: 42g, Lemak: 14g, Vitamin A, B, C",
-  },
-  yogyakarta: {
-    lunch: "Nasi dengan Pepes Ikan dan Sayur Asem",
-    snack: "Pepaya dan Susu",
-    nutritionalInfo: "Protein: 19g, Karbohidrat: 38g, Lemak: 10g, Vitamin A, C, E",
-  },
-  medan: {
-    lunch: "Mie Goreng dengan Ayam dan Sayuran",
-    snack: "Pisang Raja dan Susu",
-    nutritionalInfo: "Protein: 21g, Karbohidrat: 48g, Lemak: 16g, Vitamin A, B, D",
-  },
-  makassar: {
-    lunch: "Nasi dengan Ikan Bakar dan Sayur Kangkung",
-    snack: "Mangga dan Susu",
-    nutritionalInfo: "Protein: 20g, Karbohidrat: 43g, Lemak: 13g, Vitamin A, C, D",
-  },
-}
+import { getTomorowDate, getAllRegion, RegionsType } from "@/lib/utils"
+import { doc, DocumentReference, getDoc } from "firebase/firestore"
+import { firestore } from "@/lib/firebase/init"
 
 export default function NextMenu() {
-  const [selectedRegion, setSelectedRegion] = useState("")
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const formattedDate = tomorrow.toLocaleDateString("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
+  const formattedDate = getTomorowDate();
+  const [selectedRegionId, setSelectedRegionId] = useState<string|undefined>(undefined);
+  const [regions, setRegions] = useState<RegionsType[]>([]);
+  const selectedRegion = selectedRegionId ? regions.find(r => r.id === selectedRegionId) : undefined;
+  const [lunch, setLunch] = useState<string>("");
+  const [snack, setSnack] = useState<string>("");
+  const [nutritionalInfo, setNutritionalInfo] = useState<string>("");
+
+  useEffect(()=>{
+    getAllRegion(setRegions);
+  },[]);
+  useEffect(()=>{
+    if (selectedRegionId) {
+      getMenu();
+    }
+  }, [selectedRegionId]);
+
+  const getMenu = async ()=>{
+    const ref = selectedRegion?.menu
+    if(ref){
+      try{
+        const snap = await getDoc(ref);
+        const data = snap.data();
+        if(data){
+          setLunch(data.name||"Tidak ada informasi");
+          setSnack(data.snack||"Tidak ada informasi");
+          setNutritionalInfo(data.gizi||"Tidak ada informasi")
+        } else {
+          console.error("Menu not available in that region");
+        }
+      } catch (e){
+        console.error("Error fetching menu data with code : \n" + e);
+      }
+    } else {
+      console.error("Menu not available in that region");
+    }
+  }
+
+
 
   return (
     <div className="h-[91.5vh] flex flex-col justify-between">
@@ -79,41 +69,41 @@ export default function NextMenu() {
 
             <div className="mb-8">
                 <label className="mb-2 block text-sm font-medium">Pilih Wilayah</label>
-                <Select value={selectedRegion} onValueChange={setSelectedRegion} >
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih wilayah Anda" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                    <SelectGroup>
-                    <SelectLabel>Wilayah</SelectLabel>
-                    {regions.map((region) => (
-                        <SelectItem key={region.id} value={region.id}>
-                        {region.name}
-                        </SelectItem>
-                    ))}
-                    </SelectGroup>
-                </SelectContent>
+                <Select value={selectedRegionId} onValueChange={setSelectedRegionId} >
+                  <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih wilayah Anda" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                      <SelectGroup>
+                        <SelectLabel>Wilayah</SelectLabel>
+                        {regions.map((region) => (
+                            <SelectItem key={region.id} value={region.id}>
+                            {region.region}
+                            </SelectItem>
+                        ))}
+                      </SelectGroup>
+                  </SelectContent>
                 </Select>
             </div>
 
-            {selectedRegion ? (
+            {selectedRegionId ? (
                 <Card>
                 <CardHeader>
-                    <CardTitle>Menu untuk {regions.find((r) => r.id === selectedRegion)?.name}</CardTitle>
+                    <CardTitle>Menu untuk {regions.find((r) => r.id === selectedRegionId)?.region}</CardTitle>
                     <CardDescription>Menu makanan untuk besok, {formattedDate}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
                     <h3 className="mb-2 font-semibold">Makan Siang</h3>
-                    <p>{mealData[selectedRegion as keyof typeof mealData].lunch}</p>
+                    <p>{lunch}</p>
                     </div>
                     <div>
                     <h3 className="mb-2 font-semibold">Camilan</h3>
-                    <p>{mealData[selectedRegion as keyof typeof mealData].snack}</p>
+                    <p>{snack}</p>
                     </div>
-                    <div className="rounded-lg bg-muted p-4">
+                    <div className="rounded-lg bg-muted">
                     <h3 className="mb-2 font-semibold">Informasi Gizi</h3>
-                    <p>{mealData[selectedRegion as keyof typeof mealData].nutritionalInfo}</p>
+                    <p>{nutritionalInfo}</p>
                     </div>
                 </CardContent>
                 </Card>

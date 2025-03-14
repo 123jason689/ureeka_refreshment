@@ -14,13 +14,14 @@ export interface TendantAttributes{
 
 export type RegionsType = {
   region: string,
-  id: string
+  id: string,
+  menu: DocumentReference|null
 }
 
 export async function getAllRegion(setRegions: React.Dispatch<React.SetStateAction<RegionsType[]>>) {
   const colref = collection(firestore, "region");
   const snapshot = await getDocs(colref);
-  setRegions(snapshot.docs.map(doc => { return {region: doc.data().region, id: doc.id} as RegionsType}))
+  setRegions(snapshot.docs.map(doc => { return {region: doc.data().region, id: doc.id, menu: doc.data().menu} as RegionsType}))
 }
 
 export const fetchRegion = async (region:DocumentReference, setRegion:React.Dispatch<React.SetStateAction<RegionsType|undefined>>) => {
@@ -30,7 +31,7 @@ export const fetchRegion = async (region:DocumentReference, setRegion:React.Disp
       const regionData = regionDoc.data();
       setRegion({ region: regionData.region, id: regionDoc.id } as RegionsType)
     } else {
-      setRegion({ region: "Unknown", id:"Unknown" } as RegionsType)
+      setRegion({ region: "Unknown", id:"Unknown", menu:null } as RegionsType)
     }
   } catch (error) {
     console.error("Error fetching region data:", error);
