@@ -26,37 +26,31 @@ const regions = [
 
 const mealData = {
   jakarta: {
-    breakfast: "Bubur Ayam dengan Sayuran",
     lunch: "Nasi Uduk dengan Ayam dan Tempe",
     snack: "Pisang dan Susu",
     nutritionalInfo: "Protein: 20g, Karbohidrat: 45g, Lemak: 15g, Vitamin A, C, D",
   },
   bandung: {
-    breakfast: "Roti Gandum dengan Selai dan Susu",
     lunch: "Nasi Merah dengan Ikan dan Sayuran",
     snack: "Apel dan Yogurt",
     nutritionalInfo: "Protein: 18g, Karbohidrat: 40g, Lemak: 12g, Vitamin B, C, D",
   },
   surabaya: {
-    breakfast: "Lontong Sayur",
     lunch: "Nasi dengan Ayam Bakar dan Capcay",
     snack: "Jeruk dan Susu Kedelai",
     nutritionalInfo: "Protein: 22g, Karbohidrat: 42g, Lemak: 14g, Vitamin A, B, C",
   },
   yogyakarta: {
-    breakfast: "Bubur Kacang Hijau",
     lunch: "Nasi dengan Pepes Ikan dan Sayur Asem",
     snack: "Pepaya dan Susu",
     nutritionalInfo: "Protein: 19g, Karbohidrat: 38g, Lemak: 10g, Vitamin A, C, E",
   },
   medan: {
-    breakfast: "Nasi Lemak dengan Telur",
     lunch: "Mie Goreng dengan Ayam dan Sayuran",
     snack: "Pisang Raja dan Susu",
     nutritionalInfo: "Protein: 21g, Karbohidrat: 48g, Lemak: 16g, Vitamin A, B, D",
   },
   makassar: {
-    breakfast: "Nasi Kuning dengan Telur dan Tempe",
     lunch: "Nasi dengan Ikan Bakar dan Sayur Kangkung",
     snack: "Mangga dan Susu",
     nutritionalInfo: "Protein: 20g, Karbohidrat: 43g, Lemak: 13g, Vitamin A, C, D",
@@ -128,10 +122,6 @@ export default function NextMenu() {
                 <CardDescription>Menu makanan untuk besok, {formattedDate}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div>
-                  <h3 className="mb-2 font-semibold">Sarapan</h3>
-                  <p>{mealData[selectedRegion as keyof typeof mealData].breakfast}</p>
-                </div>
                 <div>
                   <h3 className="mb-2 font-semibold">Makan Siang</h3>
                   <p>{mealData[selectedRegion as keyof typeof mealData].lunch}</p>
