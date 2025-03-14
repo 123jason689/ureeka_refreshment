@@ -13,8 +13,8 @@ import { AuthProvider } from "./context/AuthContext.tsx"
 
 
 function App() {
-  // const { isAuthenticated } = useAuth();
-  const { isAuthenticated } = { isAuthenticated: true};
+  const { isAuthenticated } = useAuth();
+  // const { isAuthenticated } = { isAuthenticated: true};
 
   return (
     <BrowserRouter>

@@ -1,7 +1,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { Calendar, LogOut, Menu, User } from "lucide-react"
+import { Calendar, LogOut, User } from "lucide-react"
 import { DocumentReference, getDoc } from "firebase/firestore"
 
 import { Button } from "@/components/ui/button"

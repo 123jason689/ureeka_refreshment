@@ -12,7 +12,6 @@ const Navbar = ()=>{
       console.log("logged out");
     }
 
-
     return(
         <div className="w-full flex justify-between py-5 px-15 fixed top-0 left-0 z-50 bg-background">
         <div onClick={()=>navigate("/")} className="text-2xl font-bold text-primary-foreground cursor-pointer">
@@ -32,7 +31,7 @@ const Navbar = ()=>{
           <div onClick={()=>navigate("/menu")} className="text-lg text-primary-foreground hover:underline">
             Menu Besok
           </div>
-          { isAuthenticated ? 
+          { !isAuthenticated ? 
             <div onClick={()=>navigate("/login")}>
               <Button variant="outline" size="sm" >
                 Login Penyedia
