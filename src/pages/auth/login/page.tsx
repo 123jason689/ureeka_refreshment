@@ -1,20 +1,14 @@
-import { auth } from "@/lib/firebase/init";
+import { useAuth } from "@/context/AuthContext";
+import { auth, firestore } from "@/lib/firebase/init";
+import { TendantAttributes } from "@/lib/utils";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth,(user) => {
-            if(user){
-                navigate("/")
-            }
-        })
-        return () => unsubscribe()
-    },[navigate])
-
+    const {loginUser,user} = useAuth();
     const [remember,setRemember] = useState(false);
     const [error,setError] = useState("")
     const [form, setForm] = useState({ 
@@ -22,8 +16,16 @@ export default function Login() {
         password: "",
         remember: false
     })
-
     const {email,password} = form;
+
+    // useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
+    //         if (user) {
+    //             navigate("/")
+    //         }
+    //     })
+    //     return () => unsubscribe()
+    // }, [navigate])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -36,26 +38,39 @@ export default function Login() {
         navigate("/register");
     }
 
-    const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError("");
         try {
-            const users = await signInWithEmailAndPassword  (auth, email, password);
-            alert("User login successfully!");
-            if(remember == true){
-                sessionStorage.setItem("user",JSON.stringify({id : users.user.uid,name : users.user.displayName}))
-            }
-            
-            setForm({
-                email: "",
-                password: "",
-                remember: false
-            })
-            navigate('/')
-        } catch (err: any) {
-            setError("Email or password is wrong");
+            await loginUser(email, password);
+            navigate("/")
+            console.log("Login successful:", user);
+        } catch (err) {
+            setError("Failed to log in");
+            console.error("Login error:", err);
         }
-    }
+    };
+
+    // const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault()
+
+    //     try {
+    //         const users = await signInWithEmailAndPassword  (auth, email, password);
+    //         alert("User login successfully!");
+    //         if(remember == true){
+    //             sessionStorage.setItem("user",JSON.stringify({id : users.user.uid,name : users.user.displayName}))
+    //         }
+
+    //         setForm({
+    //             email: "",
+    //             password: "",
+    //             remember: false
+    //         })
+    //         navigate('/')
+    //     } catch (err: any) {
+    //         setError("Email or password is wrong");
+    //     }
+    // }
 
     return (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

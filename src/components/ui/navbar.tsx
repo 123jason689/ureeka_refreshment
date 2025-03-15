@@ -5,13 +5,14 @@ import { useAdmin, useAuth } from "@/context/AuthContext";
 
 const Navbar = ()=>{
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();  
     const { isAdmin } = useAdmin();
-
     const handleLogout = ()=>{
       console.log("logged out");
     }
 
+
+    
     return(
         <div className="w-full flex justify-between py-5 px-15 fixed top-0 left-0 z-50 bg-background">
         <div onClick={()=>navigate("/")} className="text-2xl font-bold text-primary-foreground cursor-pointer">

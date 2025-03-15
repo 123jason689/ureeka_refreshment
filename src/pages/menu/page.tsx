@@ -65,7 +65,7 @@ export default function NextMenu() {
                 <CalendarIcon className="h-5 w-5" />
                 <span>{formattedDate}</span>
             </div>
-
+            
             <div className="mb-8">
                 <label className="mb-2 block text-sm font-medium">Pilih Wilayah</label>
                 <Select value={selectedRegionId} onValueChange={setSelectedRegionId} >

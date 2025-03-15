@@ -3,12 +3,14 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useNavigate } from "react-router-dom"
+import { useAuth, useTendant } from "@/context/AuthContext";
 
 export default function Home() {
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  // const { id, name, region, phone, address } = useTendant();
+  const { isAuthenticated } = useAuth()
   return (
-        <>
+    <>
       <main className="flex-1">
         <section className="bg-muted py-20 ">
           <div className=" flex flex-col items-center text-center">
@@ -20,16 +22,18 @@ export default function Home() {
               meningkatkan gizi dan kesehatan anak-anak Indonesia.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <div onClick={()=>navigate("/menu")}>
+              <div onClick={() => navigate("/menu")}>
                 <Button size="lg" className="gap-2 hover:underline">
                   Lihat Menu Besok <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
-              <div onClick={()=>navigate("/register")}>
-                <Button size="lg" variant="outline">
-                  Daftar Sebagai Penyedia
-                </Button>
-              </div>
+              {!isAuthenticated && (
+                <div onClick={() => navigate("/register")}>
+                  <Button size="lg" variant="outline">
+                    Daftar Sebagai Penyedia
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -78,7 +82,7 @@ export default function Home() {
           <p>© 2025 Program Makanan Sekolah Indonesia. Hak Cipta Dilindungi.</p>
         </div>
       </footer>
-      </>
+    </>
   )
 }
 

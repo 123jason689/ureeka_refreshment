@@ -9,7 +9,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { MenuItem } from "@mui/material";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 export default function Register() {
 
@@ -22,6 +22,7 @@ export default function Register() {
         address: "",
         phone: "",
         region: "",
+        uid : "",
         isAdmin: false,
         remember: false
     });
@@ -29,14 +30,14 @@ export default function Register() {
     const [regions, setRegions] = useState<RegionsType[]>([])
     const [error, setError] = useState("")
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                navigate("/")
-            }
-        })
-        return () => unsubscribe()
-    }, [navigate])
+    // useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
+    //         if (user) {
+    //             navigate("/")
+    //         }
+    //     })
+    //     return () => unsubscribe()
+    // }, [navigate])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -68,7 +69,9 @@ export default function Register() {
             errorMessage = "Phone number is required.";
         } else if (!/^\d{10,}$/.test(form.phone)) {
             errorMessage = "Phone number must be at least 10 digits long.";
-        } 
+        }else if(!form.region.trim()){
+            errorMessage + "Region must be fill"
+        }
 
         if (errorMessage) {
             setError(errorMessage);
@@ -76,15 +79,17 @@ export default function Register() {
         }
         setError("")
 
-
+        navigate("/")
         try {
             const users = await createUserWithEmailAndPassword(auth, email, password);
-            const regioDir = `/region/${region}`
-            await addDoc(collection(firestore, "tendant"), {
+            const userRef = doc(firestore, "tendant", users.user.uid)
+            const regioDir = `/region/${region}`    
+            await setDoc(userRef, {
                 name,
                 address,
                 phone,
                 regioDir,
+                uid: users.user.uid,
             })
             alert("User registered successfully!");
             sessionStorage.setItem("user", JSON.stringify({ id: users.user.uid, name: name }))
@@ -95,6 +100,7 @@ export default function Register() {
                 address: "",
                 phone: "",
                 region: "",
+                uid: "",
                 isAdmin: false,
                 remember: false
             })
@@ -102,6 +108,7 @@ export default function Register() {
         } catch (err: any) {
 
         }
+        
     }
 
     useEffect(() => {
@@ -223,7 +230,7 @@ export default function Register() {
                         name="login"
                         type="submit"
                     >
-                        Login
+                        Register
                     </button>
                     <p className="flex justify-center space-x-1">
                         <span className="text-slate-700">Already have an account?</span>
