@@ -7,11 +7,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { useEffect, useState } from "react"
 import { Check } from "lucide-react"
-import { useTendant } from "@/context/AuthContext"
+import { useAdmin, useAuth, useTendant } from "@/context/AuthContext"
 import { getAllRegion, RegionsType, fetchRegion } from "@/lib/utils"
+import { doc, updateDoc, deleteDoc } from "firebase/firestore"
+import { deleteUser } from "firebase/auth"
+import { firestore } from "@/lib/firebase/init"
+import { useNavigate } from "react-router-dom"
 
 const ProfilePage = ()=>{
     const tendantInfo = useTendant();
+    const { isAdmin } = useAdmin();
+    const { user } = useAuth()
+    const navigate = useNavigate();
 
     const [regions, setRegions] = useState<RegionsType[]>([])
     const [name, setName] = useState<string|null>(tendantInfo.name)
@@ -29,9 +36,35 @@ const ProfilePage = ()=>{
         getAllRegion(setRegions);
     },[]);
 
-    const handleRemoveAccount = ()=>{
-        console.log("Account Removed");
-    }
+    const handleRemoveAccount = async () => {
+      if (!window.confirm("Apakah Anda yakin ingin menonaktifkan akun? Tindakan ini tidak dapat dibatalkan.")) {
+        return;
+      }
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        if (tendantInfo.id) {
+          // Delete from Firestore
+          const tendantRef = doc(firestore, "tendant", tendantInfo.id);
+          await deleteDoc(tendantRef);
+        }
+        
+        if (user) {
+          await deleteUser(user);
+        } else {
+          throw new Error("Tidak ada pengguna yang sedang login");
+        }
+        
+        navigate("/login");
+        
+      } catch (err: any) {
+        console.error("Error removing account:", err);
+        setError("Gagal menghapus akun: " + (err.message || "Silakan coba lagi nanti"));
+        setIsLoading(false);
+      }
+    };
 
     const handleProfileUpdate = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -40,16 +73,27 @@ const ProfilePage = ()=>{
         setSuccess(false)
 
         try {
-            // In a real app, you would send this to a backend
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000))
+          const updatedDoc = {
+            address: address,
+            name: name,
+            phone: phone,
+            region: region?.id ? doc(firestore, "region", region.id) : null,
+            isAdmin: isAdmin,
+          } 
+          const tendantref = tendantInfo?.id ? doc(firestore, "tendant", tendantInfo.id) : null
 
-            setSuccess(true)
+          if(tendantref) {
+            await updateDoc(tendantref, updatedDoc)
+          } else {
+            throw new Error("Tidak ada referensi ke tendant");
+          };
 
-            // Reset success message after 3 seconds
-            setTimeout(() => {
-                setSuccess(false)
-            }, 3000)
+          setSuccess(true);
+
+          // Reset success message after 3 seconds
+          setTimeout(() => {
+              setSuccess(false)
+          }, 3000)
         } catch (err) {
             setError("Terjadi kesalahan saat memperbarui profil. Silakan coba lagi.")
             console.error("Error updating profile:", err)

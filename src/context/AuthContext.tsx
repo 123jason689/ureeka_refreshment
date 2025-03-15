@@ -9,6 +9,7 @@
         isAuthenticated: boolean,
         loading: boolean,
         loginUser: (email: string, password: string) => Promise<void>
+        registerUser: (email: string, password: string, name: string, address: string, phone: string, region: string) => Promise<void>;
     }
 
     interface AdminContextType{
@@ -23,7 +24,7 @@
     region:DocumentReference|null,
     }
 
-    const AuthContext = createContext<AuthType>({ user: null, isAuthenticated:false, loading:true ,loginUser: async () => Promise.resolve()})
+    const AuthContext = createContext<AuthType>({ user: null, isAuthenticated:false, loading:true ,loginUser: async () => Promise.resolve(),registerUser: async () => Promise.resolve()})
 
     const AdminContext = createContext<AdminContextType>({ isAdmin: false });
 
@@ -39,6 +40,11 @@
         const [address, setAddress] = useState<string|null>(null);
         const [phone, setPhone] = useState<string|null>(null);
         const [region, setRegion] = useState<DocumentReference|null>(null);
+
+   useEffect(() => {
+      console.log("Authenticated : " + isAuthenticated);
+    }, [isAuthenticated]);
+    
 
     const loginUser = async (email: string, password: string) => {
         setLoading(true);
@@ -158,7 +164,7 @@
 
 
         return (
-            <AuthContext.Provider value={{user, isAuthenticated, loading,loginUser}}>
+            <AuthContext.Provider value={{user, isAuthenticated, loading,loginUser,registerUser}}>
                 <AdminContext.Provider value={{ isAdmin }}>
                 <TendantContext.Provider value={{ id, name, region, phone, address}}>
                     { children }

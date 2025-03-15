@@ -1,14 +1,32 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "./button"
 import { useAdmin, useAuth } from "@/context/AuthContext";
-
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase/init";
 
 const Navbar = ()=>{
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();  
+    const { isAuthenticated, loading } = useAuth();
     const { isAdmin } = useAdmin();
-    const handleLogout = ()=>{
-      console.log("logged out");
+
+    const handleLogout = async ()=>{
+      try {
+        await signOut(auth);
+        navigate('/login'); // Redirect to login page after logout
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+    }
+
+    if (loading) {
+      return (
+        <div className="w-full flex justify-between py-5 px-15 fixed top-0 left-0 z-50 bg-background">
+          <div className="text-2xl font-bold text-primary-foreground">
+            Program Makanan Sekolah
+          </div>
+          <div className="text-primary-foreground">Loading...</div>
+        </div>
+      );
     }
 
 

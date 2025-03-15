@@ -1,7 +1,7 @@
 
-import { auth, firestore } from "@/lib/firebase/init";
+import { auth } from "@/lib/firebase/init";
 import { getAllRegion, RegionsType } from "@/lib/utils";
-import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import {onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Box from '@mui/material/Box';
@@ -9,10 +9,10 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { MenuItem } from "@mui/material";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Register() {
-
+    const {registerUser} = useAuth();
     const navigate = useNavigate();
     const [remember, setRemember] = useState();
     const [form, setForm] = useState({
@@ -30,14 +30,14 @@ export default function Register() {
     const [regions, setRegions] = useState<RegionsType[]>([])
     const [error, setError] = useState("")
 
-    // useEffect(() => {
-    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
-    //         if (user) {
-    //             navigate("/")
-    //         }
-    //     })
-    //     return () => unsubscribe()
-    // }, [navigate])
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                navigate("/")
+            }
+        })
+        return () => unsubscribe()
+    }, [navigate])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -79,20 +79,8 @@ export default function Register() {
         }
         setError("")
 
-        navigate("/")
-        try {
-            const users = await createUserWithEmailAndPassword(auth, email, password);
-            const userRef = doc(firestore, "tendant", users.user.uid)
-            const regioDir = `/region/${region}`    
-            await setDoc(userRef, {
-                name,
-                address,
-                phone,
-                regioDir,
-                uid: users.user.uid,
-            })
+        registerUser(email,password,name,address,phone,region)
             alert("User registered successfully!");
-            sessionStorage.setItem("user", JSON.stringify({ id: users.user.uid, name: name }))
             setForm({
                 email: "",
                 name: "",
@@ -105,10 +93,7 @@ export default function Register() {
                 remember: false
             })
             navigate('/')
-        } catch (err: any) {
 
-        }
-        
     }
 
     useEffect(() => {

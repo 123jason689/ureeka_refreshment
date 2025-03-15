@@ -7,16 +7,13 @@ import Home from "./pages/main/page"
 import ProtectRoute from "./lib/protectRoute";
 import Navbar from './components/ui/navbar';
 import ProviderDashboard from './pages/provider/page';
-import { AuthProvider } from "./context/AuthContext.tsx"
 import Login from './pages/auth/login/page.tsx';
 import Register from './pages/auth/register/page.tsx';
-
 
 
 function App() {
 
   const { isAuthenticated } = useAuth();
-  // const { isAuthenticated } = { isAuthenticated: true};
 
   return (
     <BrowserRouter>

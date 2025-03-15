@@ -1,57 +1,107 @@
-# MBG Menu
-A refreshment project for Ureeka organization. The project is about making a web app in which the receiver or kids from the Indonesian government policy for distributing free lunch for schools. This app aims to provide information about the meal they were giving for the next day
+# Ureeka Refreshment - School Meal Program Management System
 
-# React + TypeScript + Vite
+## Overview
+Ureeka Refreshment is a comprehensive web application designed to manage Indonesia's school meal program. The platform connects food providers with the national school meal program, allowing them to manage menu offerings for different regions, while also providing transparency to the public about upcoming meal plans.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
 
-Currently, two official plugins are available:
+### Public Features
+- **Meal Viewing**: Users can view the next day's menu for any region
+- **Regional Selection**: Interactive interface for selecting different regions to view their specific menus
+- **Nutritional Information**: Detailed nutritional information for each meal
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Authentication
+- **Secure Login**: Provider authentication system with email and password
+- **Registration**: New provider registration with regional assignment
+- **Session Management**: Remember-me functionality for persistent login
 
-## Expanding the ESLint configuration
+### Provider Dashboard
+- **Profile Management**: Providers can update their personal and business information
+- **Menu Creation**: Ability to create new meal plans with main dish, snack, and nutritional details
+- **Menu Assignment**: Assign existing menus to regions
+- **Account Management**: Providers can manage their accounts, including deactivation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Frontend
+- **Framework**: React 19 with TypeScript
+- **Routing**: React Router DOM v7
+- **UI Components**: 
+  - Custom components using Radix UI primitives
+  - Material UI components
+  - Custom styling with TailwindCSS
+
+### Backend
+- **Authentication & Database**: Firebase
+  - Firebase Authentication for user management
+  - Firestore for database services
+  - Firebase Storage for asset management
+
+### Development Tools
+- **Build Tool**: Vite 6
+- **Code Quality**: ESLint with TypeScript support
+- **Package Management**: npm
+
+## Implementation Details
+
+### Directory Structure
+```
+/src
+  /components        # Reusable UI components
+    /ui              # Core UI components
+  /context           # React context providers
+  /lib               # Utility functions and Firebase setup
+    /firebase        # Firebase initialization
+  /pages             # Page components organized by route
+    /auth            # Authentication pages (login, register)
+    /main            # Home page
+    /menu            # Public menu viewing
+    /provider        # Provider dashboard
+    /unauthorized    # Access denied page
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Authentication Flow
+The application implements a complete authentication flow with Firebase:
+- User registration with email validation
+- Secure login with session persistence
+- Role-based authorization (admin vs regular provider)
+- Protected routes using custom `ProtectRoute` component
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Data Model
+- **Users**: Provider information including name, contact details, and region
+- **Regions**: Geographical areas with assigned menus
+- **Menus**: Food offerings with nutritional information
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### State Management
+- Context API for authentication state and user information
+- Local component state for UI interactions
+- Firestore real-time updates for data synchronization
+
+## Getting Started
+
+### Installation
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a Firebase project and configure environment variables in `.env` file
+4. Start development server: `npm run dev`
+
+### Environment Variables
+Create a `.env` file with the following Firebase configuration:
 ```
+VITE_APIKEY=your-api-key
+VITE_AUTHDOMAIN=your-auth-domain
+VITE_DATABASEURL=your-database-url
+VITE_PROJECTID=your-project-id
+VITE_STORAGEBUCKET=your-storage-bucket
+VITE_MESSAGINGSENDERID=your-messaging-sender-id
+VITE_APPID=your-app-id
+VITE_MEASUREMENTID=your-measurement-id
+```
+
+## Deployment
+The application can be built for production using:
+```
+npm run build
+```
+
+This creates optimized production files in the `dist` directory ready for deployment to any static hosting service.

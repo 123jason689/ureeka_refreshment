@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import NewMenu from "./newmenu/page"
 import ProfilePage from "./profile/page"
 import { useTendant } from "@/context/AuthContext"
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase/init';
+import { useNavigate } from "react-router-dom"
 
 type Page = "profile" | "newmenu";
 
@@ -16,7 +19,8 @@ interface PageProp{
 }
 
 const ProviderDashboard:React.FC<PageProp> =({page})=>{
-  const { name, region } = useTendant()
+  const { name, region } = useTendant();
+  const navigate = useNavigate();
 
   const [regionName, setRegionName] = useState<string>("Not Authorized");
 
@@ -37,7 +41,7 @@ const ProviderDashboard:React.FC<PageProp> =({page})=>{
         setRegionName(regionData?.region || "Undefined");
       } else {
         setRegionName("Undefined");
-        console.log("No region document found");
+        console.error("No region document found");
       }
     } catch (error) {
       console.error("Error fetching region data:", error);
@@ -46,8 +50,13 @@ const ProviderDashboard:React.FC<PageProp> =({page})=>{
 
   const [pagein, setPagein] = useState<Page>(page);
 
-  const handleLogout = ()=>{
-    console.log("Logged out");
+  const handleLogout = async ()=>{
+    try {
+      await signOut(auth);
+      navigate('/login'); // Redirect to login page after logout
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   }
 
   return (
