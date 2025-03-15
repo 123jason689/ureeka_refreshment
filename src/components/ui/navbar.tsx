@@ -1,16 +1,21 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "./button"
 import { useAdmin, useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
-
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase/init";
 
 const Navbar = ()=>{
     const navigate = useNavigate();
     const { isAuthenticated, loading } = useAuth();
     const { isAdmin } = useAdmin();
 
-    const handleLogout = ()=>{
-      console.log("logged out");
+    const handleLogout = async ()=>{
+      try {
+        await signOut(auth);
+        navigate('/login'); // Redirect to login page after logout
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
     }
 
     // If auth is still loading, render a simplified navbar or loading state

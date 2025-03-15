@@ -10,8 +10,8 @@ import { Check } from "lucide-react"
 import { useAdmin, useAuth, useTendant } from "@/context/AuthContext"
 import { getAllRegion, RegionsType, fetchRegion } from "@/lib/utils"
 import { doc, updateDoc, deleteDoc } from "firebase/firestore"
-import { deleteUser, signOut } from "firebase/auth"
-import { firestore, auth } from "@/lib/firebase/init"
+import { deleteUser } from "firebase/auth"
+import { firestore } from "@/lib/firebase/init"
 import { useNavigate } from "react-router-dom"
 
 const ProfilePage = ()=>{
