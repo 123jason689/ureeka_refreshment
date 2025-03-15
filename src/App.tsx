@@ -7,22 +7,18 @@ import Home from "./pages/main/page"
 import ProtectRoute from "./lib/protectRoute";
 import Navbar from './components/ui/navbar';
 import ProviderDashboard from './pages/provider/page';
-import { AuthProvider } from "./context/AuthContext.tsx"
 import Login from './pages/auth/login/page.tsx';
 import Register from './pages/auth/register/page.tsx';
-
 
 
 function App() {
 
   const { isAuthenticated } = useAuth();
-  // const { isAuthenticated } = { isAuthenticated: true}; // for development testing only
 
   return (
     <BrowserRouter>
       <Navbar/>
       <div className="pt-20">
-        <AuthProvider>
           <Routes>
             <Route path='/' element={<Home/>}/>
             <Route path='/login' element={<Login/>}/>
@@ -41,7 +37,6 @@ function App() {
               </ProtectRoute>
             }/>
           </Routes>
-        </AuthProvider>
       </div>
     </BrowserRouter>
   )

@@ -45,7 +45,7 @@ export default function Login() {
             if(remember == true){
                 sessionStorage.setItem("user",JSON.stringify({id : users.user.uid,name : users.user.displayName}))
             }
-            
+
             setForm({
                 email: "",
                 password: "",

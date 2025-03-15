@@ -9,7 +9,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { MenuItem } from "@mui/material";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 export default function Register() {
 
@@ -79,12 +79,12 @@ export default function Register() {
 
         try {
             const users = await createUserWithEmailAndPassword(auth, email, password);
-            const regioDir = `/region/${region}`
-            await addDoc(collection(firestore, "tendant"), {
+            await setDoc(doc(firestore, "tendant", users.user.uid), {
                 name,
                 address,
                 phone,
-                regioDir,
+                region: doc(firestore, "region", region),
+                isAdmin: false,
             })
             alert("User registered successfully!");
             sessionStorage.setItem("user", JSON.stringify({ id: users.user.uid, name: name }))

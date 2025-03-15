@@ -42,7 +42,6 @@ export const AuthProvider = ({children}: {children: ReactNode})=>{
     useEffect(()=>{
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
-            console.log("Fetching user data");
             if (user) {
               try {
                 const docSnap = await getDoc(doc(firestore, "tendant", user.uid));

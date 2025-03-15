@@ -37,10 +37,11 @@ export async function getAllMenu(setMenus: React.Dispatch<React.SetStateAction<M
 
 export const fetchRegion = async (region:DocumentReference, setRegion:React.Dispatch<React.SetStateAction<RegionsType|undefined>>) => {
   try {
+    console.log(region);
     const regionDoc = await getDoc(region);
     if (regionDoc.exists()) {
       const regionData = regionDoc.data();
-      setRegion({ region: regionData.region, id: regionDoc.id } as RegionsType)
+      setRegion({ region: regionData.region, id: regionDoc.id, menu: regionData.menu } as RegionsType)
     } else {
       setRegion({ region: "Unknown", id:"Unknown", menu:null } as RegionsType)
     }
