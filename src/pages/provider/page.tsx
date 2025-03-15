@@ -37,7 +37,7 @@ const ProviderDashboard:React.FC<PageProp> =({page})=>{
         setRegionName(regionData?.region || "Undefined");
       } else {
         setRegionName("Undefined");
-        console.log("No region document found");
+        console.error("No region document found");
       }
     } catch (error) {
       console.error("Error fetching region data:", error);

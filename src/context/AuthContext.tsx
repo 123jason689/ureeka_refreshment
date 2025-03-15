@@ -39,6 +39,10 @@ export const AuthProvider = ({children}: {children: ReactNode})=>{
     const [phone, setPhone] = useState<string|null>(null);
     const [region, setRegion] = useState<DocumentReference|null>(null);
 
+    useEffect(() => {
+      console.log("Authenticated : " + isAuthenticated);
+    }, [isAuthenticated]);
+    
     useEffect(()=>{
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
@@ -55,13 +59,16 @@ export const AuthProvider = ({children}: {children: ReactNode})=>{
                   setPhone(docdata.phone);
                   setAddress(docdata.address);
                 } else {
+                  setIsAuthenticated(false);
                   setIsAdmin(false);
                 }
               } catch (e) {
                 console.error("Error fetching admin status:", e);
+                setIsAuthenticated(false);
                 setIsAdmin(false);
               }
             } else {
+              setIsAuthenticated(false);
               setIsAdmin(false);
             }
             setLoading(false);

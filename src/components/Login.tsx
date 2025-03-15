@@ -35,7 +35,7 @@ export default function Login() {
             throw new Error("response failed")
           }
         } catch (error) {
-          console.log(error)
+          console.error(error)
         }
     }
 

@@ -1,7 +1,13 @@
-import { useEffect, useState } from "react"
-import { CalendarIcon } from "lucide-react"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { useEffect, useState } from "react"
+import { getTomorowDate } from "@/lib/utils"
+import { getAllMenu, MenusType } from "@/lib/utils"
+import { collection, writeBatch, updateDoc, doc } from "firebase/firestore"
+import { firestore } from "@/lib/firebase/init"
 import {
   Select,
   SelectContent,
@@ -11,112 +17,148 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getTomorowDate, getAllRegion, RegionsType } from "@/lib/utils"
-import { getDoc } from "firebase/firestore"
+import { useTendant } from "@/context/AuthContext"
 
-export default function NextMenu() {
-  const formattedDate = getTomorowDate();
-  const [selectedRegionId, setSelectedRegionId] = useState<string|undefined>(undefined);
-  const [regions, setRegions] = useState<RegionsType[]>([]);
-  const selectedRegion = selectedRegionId ? regions.find(r => r.id === selectedRegionId) : undefined;
-  const [lunch, setLunch] = useState<string>("");
-  const [snack, setSnack] = useState<string>("");
-  const [nutritionalInfo, setNutritionalInfo] = useState<string>("");
 
-  useEffect(()=>{
-    getAllRegion(setRegions);
-  },[]);
-  useEffect(()=>{
-    if (selectedRegionId) {
-      getMenu();
-    }
-  }, [selectedRegionId]);
 
-  const getMenu = async ()=>{
-    const ref = selectedRegion?.menu
-    if(ref){
-      try{
-        const snap = await getDoc(ref);
-        const data = snap.data();
-        if(data){
-          setLunch(data.name||"Tidak ada informasi");
-          setSnack(data.snack||"Tidak ada informasi");
-          setNutritionalInfo(data.gizi||"Tidak ada informasi")
-        } else {
-          console.error("Menu not available in that region");
+export default function NewMenu(){
+    const { region } = useTendant();
+    const [menus, setMenus] = useState<MenusType[]>([]);
+    const [lunch, setLunch] = useState("")
+    const [snack, setSnack] = useState("")
+    const [nutritionalInfo, setNutritionalInfo] = useState("")
+    const [selectedMenuId, setselectedMenuId] = useState<string|undefined>(undefined);
+    
+    useEffect(()=>{
+      getAllMenu(setMenus);      
+    }, []);
+
+    const formattedDate = getTomorowDate();
+    
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault()
+      if(selectedMenuId === "none"){
+        if(!validate()){ return; }
+        
+        // Create a batch operation
+        const batch = writeBatch(firestore);
+        
+        // Create a new document reference with auto-generated ID
+        const menuDocRef = doc(collection(firestore, "menu"));
+        
+        // Set the new menu data
+        batch.set(menuDocRef, {
+          name: lunch,
+          snack: snack,
+          gizi: nutritionalInfo,
+        });
+        
+        // Update the region's menu reference with the new menu ID
+        if (region) {
+          batch.update(region, {
+            menu: menuDocRef
+          });
         }
-      } catch (e){
-        console.error("Error fetching menu data with code : \n" + e);
+        
+        try {
+          // Commit the batch
+          await batch.commit();
+          alert("Menu untuk besok berhasil diperbarui!")
+        } catch (error) {
+          console.error("Error updating menu:", error);
+          alert("Gagal memperbarui menu")
+        }
+      } else {
+        if(region && selectedMenuId && selectedMenuId !== "none"){
+          const selectedMenuRef = doc(firestore, "menu", selectedMenuId);
+          updateDoc(region, { menu: selectedMenuRef });
+          alert("Menu untuk besok berhasil diperbarui!")
+        } else {
+          alert("Gagal memperbarui menu")
+        }
+
       }
-    } else {
-      console.error("Menu not available in that region");
     }
-  }
 
+    const validate = ():boolean=>{
+      if(lunch.length < 3){
+        alert("Nama menu harus lebih panjang dari 3 karakter")
+        return false;
+      } else if(snack.length < 3){
+        alert("Nama camilan harus lebih panjang dari 3 karakter ");
+        return false;
+      } else if(nutritionalInfo.length < 3){
+        alert("Deskripsi nutrisi tidak boleh lurang dari 3 karakter");
+        return false;
+      } else {
+        return true
+      }
+    }
 
-
-  return (
-    <div className="h-[91.5vh] flex flex-col justify-between">
-        <main className="flex-col h-[60vh] justify-center items-center pt-28">
-            <div className="mx-auto max-w-3xl ">
-            <h1 className="mb-6 text-3xl font-bold">Menu Makanan Besok</h1>
-            <div className="mb-8 flex items-center gap-2 text-muted-foreground">
-                <CalendarIcon className="h-5 w-5" />
-                <span>{formattedDate}</span>
-            </div>
-
+    return (
+        <Card>
+        <CardHeader>
+          <CardTitle>Kelola Menu</CardTitle>
+          <CardDescription>Tentukan menu makanan untuk besok, {formattedDate}</CardDescription>
+        </CardHeader>
+        <CardContent>
             <div className="mb-8">
-                <label className="mb-2 block text-sm font-medium">Pilih Wilayah</label>
-                <Select value={selectedRegionId} onValueChange={setSelectedRegionId} >
+                <label className="mb-2 block text-sm font-medium">Pilih Menu Sebelumnya</label>
+                <Select value={selectedMenuId} onValueChange={setselectedMenuId} >
                   <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih wilayah Anda" />
+                      <SelectValue placeholder="Pilih menu yang ada" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
                       <SelectGroup>
-                        <SelectLabel>Wilayah</SelectLabel>
-                        {regions.map((region) => (
-                            <SelectItem key={region.id} value={region.id}>
-                            {region.region}
+                        <SelectLabel>Menu</SelectLabel>
+                        <SelectItem key={"00000000000"} value="none">
+                          Buat Menu Baru
+                        </SelectItem>
+                        {menus.map((menu) => (
+                            <SelectItem key={menu.id} value={menu.id}>
+                            {menu.name}
                             </SelectItem>
                         ))}
                       </SelectGroup>
                   </SelectContent>
                 </Select>
             </div>
-
-            {selectedRegionId ? (
-                <Card>
-                <CardHeader>
-                    <CardTitle>Menu untuk {regions.find((r) => r.id === selectedRegionId)?.region}</CardTitle>
-                    <CardDescription>Menu makanan untuk besok, {formattedDate}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div>
-                    <h3 className="mb-2 font-semibold">Makan Siang</h3>
-                    <p>{lunch}</p>
-                    </div>
-                    <div>
-                    <h3 className="mb-2 font-semibold">Camilan</h3>
-                    <p>{snack}</p>
-                    </div>
-                    <div className="rounded-lg bg-muted">
-                    <h3 className="mb-2 font-semibold">Informasi Gizi</h3>
-                    <p>{nutritionalInfo}</p>
-                    </div>
-                </CardContent>
-                </Card>
-            ) : (
-                <div className="rounded-lg border border-dashed p-8 text-center">
-                <p className="text-muted-foreground">Silakan pilih wilayah untuk melihat menu makanan besok.</p>
-                </div>
-            )}
-            </div>
-        </main>
-        <footer className="bg-muted py-6">
-            <div className="text-center text-sm">
-            <p>© 2025 Program Makanan Sekolah Indonesia. Hak Cipta Dilindungi.</p>
-            </div>
-        </footer>
-    </div>
-  )
+          <form onSubmit={handleSubmit} className="space-y-6">
+            { selectedMenuId === "none" &&
+              <>
+              <div className="grid gap-3">
+                <Label htmlFor="lunch">Makan Siang</Label>
+                <Input
+                  id="lunch"
+                  value={lunch}
+                  onChange={(e) => setLunch(e.target.value)}
+                  placeholder="Contoh: Nasi dengan Ayam dan Sayuran"
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="snack">Camilan</Label>
+                <Input
+                  id="snack"
+                  value={snack}
+                  onChange={(e) => setSnack(e.target.value)}
+                  placeholder="Contoh: Buah dan Susu"
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="nutritional-info">Informasi Gizi</Label>
+                <Textarea
+                  id="nutritional-info"
+                  value={nutritionalInfo}
+                  onChange={(e) => setNutritionalInfo(e.target.value)}
+                  placeholder="Contoh: Protein: 20g, Karbohidrat: 45g, Lemak: 15g, Vitamin A, C, D"
+                  rows={3}
+                />
+              </div>
+              </> 
+            }
+            <Button variant="outline" type="submit">Simpan Menu Besok</Button>
+          </form>
+        </CardContent>
+      </Card>
+    )
 }
