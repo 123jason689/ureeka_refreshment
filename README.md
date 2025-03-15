@@ -1,6 +1,9 @@
 # Quick Start Up
+- React Set Up <br>
 npm git clone https://github.com/123jason689/ureeka_refreshment.git <br>
-npm install
+npm install <br>
+npm install react-router-dom
+
 
 # MBG Menu
 A refreshment project for Ureeka organization. The project is about making a web app in which the receiver or kids from the Indonesian government policy for distributing free lunch for schools. This app aims to provide information about the meal they were giving for the next day
