@@ -1,5 +1,5 @@
 # Quick Start Up
-npm git clone 
+npm git clone https://github.com/123jason689/ureeka_refreshment.git <br>
 npm install
 
 # MBG Menu
